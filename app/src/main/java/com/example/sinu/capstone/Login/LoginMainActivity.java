@@ -8,8 +8,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.example.sinu.capstone.ListViewActivity;
 import com.example.sinu.capstone.MainActivity;
 import com.example.sinu.capstone.R;
 
