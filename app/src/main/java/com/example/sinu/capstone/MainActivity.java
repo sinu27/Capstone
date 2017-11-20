@@ -3,6 +3,7 @@ package com.example.sinu.capstone;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,33 +19,59 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import android.view.View.OnClickListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     CustomExpandableListViewAdapter listAdapter;
     ExpandableListView expListView;
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
+    HashMap<String, String> listData;
+    //DB
+    String myJSON;
 
+    private static final String TAG_RESULTS = "result";
+    private static final String TAG_TYPE = "type";
+    private static final String TAG_NAME = "name";
+    private static final String TAG_PRICE = "price";
+
+    JSONArray menu = null;
+
+    ArrayList al_type = new ArrayList();
+    ArrayList al_name = new ArrayList();
+    ArrayList al_price = new ArrayList();
+    //DB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+        //DB
+        getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/menu.php");
+
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
         // preparing list data
-        prepareListData();
+        //prepareListData();
 
-        listAdapter = new CustomExpandableListViewAdapter(this, listDataHeader, listDataChild);
+        //listAdapter = new CustomExpandableListViewAdapter(this, listDataHeader, listDataChild);
 
         // setting list adapter
-        expListView.setAdapter(listAdapter);
+        //expListView.setAdapter(listAdapter);
         //////
 
     }
@@ -54,14 +81,17 @@ public class MainActivity extends AppCompatActivity {
     */
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
+        //listData = new HashMap<String,String>();
         listDataChild = new HashMap<String, List<String>>();
 
+
+        listDataHeader.addAll(al_type);
         // Adding child data
-        listDataHeader.add("추천메뉴");
-        listDataHeader.add("치킨");
-        listDataHeader.add("한식");
-        listDataHeader.add("중식");
-        listDataHeader.add("일식");
+//        listDataHeader.add("추천메뉴");
+//        listDataHeader.add("치킨");
+//        listDataHeader.add("한식");
+//        listDataHeader.add("중식");
+//        listDataHeader.add("일식");
 
         // Adding child data
         List<String> recom = new ArrayList<String>();
@@ -96,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
         ilsik.add("The Spectacular Now");
         ilsik.add("The Canyons");
 
-        listDataChild.put(listDataHeader.get(0), recom); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), chicken);
-        listDataChild.put(listDataHeader.get(2), hansik);
-        listDataChild.put(listDataHeader.get(3), jungsik);
-        listDataChild.put(listDataHeader.get(4), ilsik);
+//        listDataChild.put(listDataHeader.get(0), recom);// Header, Child data
+//        listDataChild.put(listDataHeader.get(1), chicken);
+//        listDataChild.put(listDataHeader.get(2), hansik);
+//        listDataChild.put(listDataHeader.get(3), jungsik);
+//        listDataChild.put(listDataHeader.get(4), ilsik);
     }
 
     @Override
@@ -211,5 +241,71 @@ public class MainActivity extends AppCompatActivity {
         public boolean isChildSelectable(int groupPosition, int childPosition) {
             return true;
         }
+    }
+
+    ////////////////////////////////DB//////////////////////////////////
+    protected void showList() {
+        try {
+            JSONObject jsonObj = new JSONObject(myJSON);
+            menu = jsonObj.getJSONArray(TAG_RESULTS);
+
+            for (int i = 0; i < menu.length(); i++) {
+                JSONObject c = menu.getJSONObject(i);
+                String type = c.getString(TAG_TYPE);
+                String name = c.getString(TAG_NAME);
+                String price = c.getString(TAG_PRICE);
+                al_type.add(type);
+                al_name.add(name);
+                al_price.add(price);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //onclick
+        prepareListData();
+        listAdapter = new CustomExpandableListViewAdapter(this, listDataHeader, listDataChild);
+
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
+    }
+
+    public void getData(String url) {
+        class GetDataJSON extends AsyncTask<String, Void, String> {
+
+            @Override
+            protected String doInBackground(String... params) {
+
+                String uri = params[0];
+
+                BufferedReader bufferedReader = null;
+                try {
+                    URL url = new URL(uri);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    StringBuilder sb = new StringBuilder();
+
+                    bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+                    String json;
+                    while ((json = bufferedReader.readLine()) != null) {
+                        sb.append(json + "\n");
+                    }
+
+                    return sb.toString().trim();
+
+                } catch (Exception e) {
+                    return null;
+                }
+
+
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                myJSON = result;
+                showList();
+            }
+        }
+        GetDataJSON g = new GetDataJSON();
+        g.execute(url);
     }
 }
