@@ -40,7 +40,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:inputType="textPassword"
+            android:inputType="text"
             android:background="@drawable/border"
             android:padding="10dp"
             android:hint="아이디"
@@ -118,7 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:inputType="textPassword"
+            android:inputType="text"
             android:background="@drawable/border"
             android:padding="10dp"
             android:hint="이름"
@@ -144,12 +144,12 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:inputType="textPassword"
+            android:inputType="phone"
             android:background="@drawable/border"
             android:padding="10dp"
             android:hint="전화번호"
             android:ems="12"
-            android:id="@+id/regit_phonnumber"/>
+            android:id="@+id/regit_phonenumber"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -172,16 +172,19 @@
             android:layout_weight="10"
             android:gravity="center">
             <Spinner
+                android:id="@+id/regit_year"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:entries="@array/year"
                 />
             <Spinner
+                android:id="@+id/regit_month"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:entries="@array/month"
                 />
             <Spinner
+                android:id="@+id/regit_day"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:entries="@array/day"
@@ -204,16 +207,19 @@
             android:layout_height="match_parent"
             android:layout_weight="1"/>
         <RadioGroup
+            android:id="@+id/regit_sex"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
             android:orientation="horizontal"
             android:gravity="center">
             <RadioButton
+                android:id="@+id/regit_male"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="남자"/>
             <RadioButton
+                android:id="@+id/regit_female"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -225,10 +231,21 @@
             android:layout_weight="1"/>
     </LinearLayout>
 
-    <Button
-          android:id="@+id/regit_sign"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="동의하고 가입하기"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/regit_sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="가입"/>
+
+        <Button
+            android:id="@+id/regit_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="취소"/>
+    </LinearLayout>
 
 </LinearLayout>

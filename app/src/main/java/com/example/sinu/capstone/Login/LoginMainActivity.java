@@ -50,7 +50,7 @@ public class LoginMainActivity extends Activity {
         setContentView(R.layout.login_activity_main);
 
         //DB
-        getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/testdb.php");
+        getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/login.php");
 
         etID = (EditText) findViewById(R.id.Login_ID);
         etPW = (EditText) findViewById(R.id.Login_password);
@@ -141,6 +141,3 @@ public class LoginMainActivity extends Activity {
         g.execute(url);
     }
 }
-
-
-
