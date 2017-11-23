@@ -2,6 +2,7 @@ package com.example.sinu.capstone;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -23,10 +24,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import android.view.View.OnClickListener;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
     HashMap<String, String> listData;
+    //Firebase
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+
     //DB
     String myJSON;
 
@@ -51,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList al_type = new ArrayList();
     ArrayList al_name = new ArrayList();
     ArrayList al_price = new ArrayList();
+
+    ArrayList ordered = new ArrayList();
     //DB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,15 +77,54 @@ public class MainActivity extends AppCompatActivity {
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
-        // preparing list data
-        //prepareListData();
+        //firebase
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
 
-        //listAdapter = new CustomExpandableListViewAdapter(this, listDataHeader, listDataChild);
+        ///
+        Button btnComplete = (Button)findViewById(R.id.btnOrder);
+        btnComplete.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /** 원본 데이터 유형 */
+                ArrayList<String> itemList = new ArrayList<String>();
+                /** 원본 데이터 유형별 중복개수 */
+                ArrayList<Integer> cntList = new ArrayList<Integer>();
+                //1. 데이터 유형 및 개수를 설정한다.
+                for(int index = 0 ; index < ordered.size() ; index++) {
+                    //item이 등록되었는지 확인한다.
+                    //1.1 등록되지 않았을 때 처리
+                    if (!itemList.contains(ordered.get(index).toString())) {
 
-        // setting list adapter
-        //expListView.setAdapter(listAdapter);
-        //////
+                        //1.1.1 item을 itemList에 추가한다.
+                        itemList.add(ordered.get(index).toString());
 
+                        //1.1.2 item이 몇개 들어있는지 세어서 cntList에 추가한다.
+                        int cnt = 0;
+                        for (int searchIndex = index; searchIndex < ordered.size(); searchIndex++) {
+                            if (ordered.get(index).toString() ==ordered.get(searchIndex).toString()) {
+                                cnt++;
+                            }
+                        }
+                        cntList.add(cnt);
+                    } else continue;
+                }
+                String Menu_name="";String count="";
+                for(int i =0;i<itemList.size();i++){
+                    Menu_name += itemList.get(i)+"\n";
+                    count += cntList.get(i)+"개\n";
+                }
+                //현재시각
+                long time = System.currentTimeMillis();
+                SimpleDateFormat dayTime = new SimpleDateFormat("dd hh:mm");
+                String str = dayTime.format(new Date(time));
+
+                orderData chatData = new orderData(str,"test",Menu_name,count, Color.RED);  // (가게정보,table번호,메뉴이름,수량)
+                databaseReference.child("store1").push().setValue(chatData);  // 기본 database 하위 message라는 child에 chatData를 list로 만들기
+                itemList.clear();cntList.clear();ordered.clear();
+                Toast.makeText(getApplicationContext(),"요청이 완료되었습니다.",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /*
@@ -108,32 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 stew.add(al_name.get(i).toString()+"|"+al_price.get(i).toString());
             }
         }
-        // Adding child data
-
-//        List<String> chicken = new ArrayList<String>();
-//        chicken.add("The Conjuring");
-//        chicken.add("Despicable Me 2");
-//        chicken.add("Turbo");
-//        chicken.add("Grown Ups 2");
-//        chicken.add("Red 2");
-//
-//        List<String> hansik = new ArrayList<String>();
-//        hansik.add("2 Guns");
-//        hansik.add("The Smurfs 2");
-//        hansik.add("The Spectacular Now");
-//        hansik.add("The Canyons");
-//
-//        List<String> jungsik = new ArrayList<String>();
-//        jungsik.add("2 Guns");
-//        jungsik.add("The Smurfs 2");
-//        jungsik.add("The Spectacular Now");
-//
-//
-//        List<String> ilsik = new ArrayList<String>();
-//        ilsik.add("2 Guns");
-//        ilsik.add("The Smurfs 2");
-//        ilsik.add("The Spectacular Now");
-//        ilsik.add("The Canyons");
 
         listDataChild.put(listDataHeader.get(0), recom);// Header, Child data
         listDataChild.put(listDataHeader.get(1), hansik);
@@ -203,7 +228,10 @@ public class MainActivity extends AppCompatActivity {
             button1.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(_context, childText + "  "+priceText, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(_context, childText + "  "+priceText, Toast.LENGTH_SHORT).show();
+                    ordered.add(childText.toString());
+                    //Toast.makeText(_context, ordered+"", Toast.LENGTH_SHORT).show();
+
                 }
             });
             return convertView;
