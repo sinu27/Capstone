@@ -62,7 +62,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList al_name = new ArrayList();
     ArrayList al_price = new ArrayList();
 
-    ArrayList ordered = new ArrayList();
+    ArrayList<String[]> ordered = new ArrayList<String[]>();
+    ArrayList orderedMenu = new ArrayList();
+    ArrayList orderedPrice = new ArrayList();
     //DB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //DB
-        getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/menu.php");
+        getData("http://ec2-13-124-13-37.ap-northeast-2.compute.amazonaws.com/qble/menu.php");
 
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
@@ -91,37 +93,40 @@ public class MainActivity extends AppCompatActivity {
                 /** 원본 데이터 유형별 중복개수 */
                 ArrayList<Integer> cntList = new ArrayList<Integer>();
                 //1. 데이터 유형 및 개수를 설정한다.
-                for(int index = 0 ; index < ordered.size() ; index++) {
+                for(int index = 0 ; index < orderedMenu.size() ; index++) {
                     //item이 등록되었는지 확인한다.
                     //1.1 등록되지 않았을 때 처리
-                    if (!itemList.contains(ordered.get(index).toString())) {
+                    if (!itemList.contains(orderedMenu.get(index).toString())) {
 
                         //1.1.1 item을 itemList에 추가한다.
-                        itemList.add(ordered.get(index).toString());
+                        itemList.add(orderedMenu.get(index).toString());
 
                         //1.1.2 item이 몇개 들어있는지 세어서 cntList에 추가한다.
                         int cnt = 0;
-                        for (int searchIndex = index; searchIndex < ordered.size(); searchIndex++) {
-                            if (ordered.get(index).toString() ==ordered.get(searchIndex).toString()) {
+                        for (int searchIndex = index; searchIndex < orderedMenu.size(); searchIndex++) {
+                            if (orderedMenu.get(index).toString() ==orderedMenu.get(searchIndex).toString()) {
                                 cnt++;
                             }
                         }
                         cntList.add(cnt);
                     } else continue;
                 }
-                String Menu_name="";String count="";
+                String Menu_name="";String count="";String Price_list="";String total_string="";
                 for(int i =0;i<itemList.size();i++){
                     Menu_name += itemList.get(i)+"\n";
                     count += cntList.get(i)+"개\n";
+                    orderedPrice.add(ordered.get(i)[1]);
+                    Price_list += orderedPrice.get(i)+"\n";
+                    total_string += Integer.parseInt(orderedPrice.get(i).toString())*cntList.get(i)+"\n";
                 }
                 //현재시각
                 long time = System.currentTimeMillis();
-                SimpleDateFormat dayTime = new SimpleDateFormat("dd hh:mm");
+                SimpleDateFormat dayTime = new SimpleDateFormat("MMdhhmmssSS");
                 String str = dayTime.format(new Date(time));
 
-                orderData chatData = new orderData(str,"test",Menu_name,count, Color.RED);  // (가게정보,table번호,메뉴이름,수량)
-                databaseReference.child("store1").push().setValue(chatData);  // 기본 database 하위 message라는 child에 chatData를 list로 만들기
-                itemList.clear();cntList.clear();ordered.clear();
+                orderData chatData = new orderData(str,str,"2번",Menu_name,count,Price_list,total_string, Color.RED,1);  // (날짜,table번호,메뉴이름,수량)
+                databaseReference.child("store1").child(str).setValue(chatData);  // 기본 database 하위 message라는 child에 chatData를 list로 만들기
+                itemList.clear();cntList.clear();orderedMenu.clear();
                 Toast.makeText(getApplicationContext(),"요청이 완료되었습니다.",Toast.LENGTH_SHORT).show();
             }
         });
@@ -229,7 +234,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //Toast.makeText(_context, childText + "  "+priceText, Toast.LENGTH_SHORT).show();
-                    ordered.add(childText.toString());
+                    ordered.add(new String[]{childText,priceText});
+                    orderedMenu.add(childText.toString());
                     //Toast.makeText(_context, ordered+"", Toast.LENGTH_SHORT).show();
 
                 }
