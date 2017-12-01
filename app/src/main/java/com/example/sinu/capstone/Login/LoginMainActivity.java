@@ -52,6 +52,8 @@ public class LoginMainActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.login_activity_main);
 
+
+
         //DB
         //getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/login.php");
 
@@ -102,8 +104,13 @@ public class LoginMainActivity extends Activity {
             progressDialog.dismiss();
             Toast.makeText(getApplicationContext()," " + result,Toast.LENGTH_LONG).show();
             if(result.equals("로그인 성공")){
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                //intented from NFC_Activity
+                Intent intent = getIntent();
+                String tableno = intent.getStringExtra("tableno");
+
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                i.putExtra("tableno",tableno);
+                startActivity(i);
                 finish();
             }
         }
@@ -115,7 +122,7 @@ public class LoginMainActivity extends Activity {
             String ID = (String)params[0];
             String PASSWORD = (String)params[1];
 
-            String serverURL = "http://ec2-13-124-13-37.ap-northeast-2.compute.amazonaws.com/qble/login2.php";
+            String serverURL = "http://ec2-13-124-191-219.ap-northeast-2.compute.amazonaws.com/qble/login2.php";
             String postParameters = "ID=" + ID + "&PASSWORD=" + PASSWORD;
 
 

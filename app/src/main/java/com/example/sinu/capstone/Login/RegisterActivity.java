@@ -161,7 +161,7 @@ public class RegisterActivity extends Activity {
             String SEX = (String)params[4];
             String BIRTHDAY = (String)params[5];
 
-            String serverURL = "http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/registerfinal.php";
+            String serverURL = "http://ec2-13-125-82-73.ap-northeast-2.compute.amazonaws.com/qble/registerfinal.php";
             String postParameters = "ID=" + ID + "&PASSWORD=" + PASSWORD + "&PHONE_NUMBER=" + PHONE_NUMBER + "&NAME=" + NAME + "&SEX=" + SEX + "&BIRTHDAY=" + BIRTHDAY;
 
 

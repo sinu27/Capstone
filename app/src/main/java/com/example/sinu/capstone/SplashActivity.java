@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.view.WindowManager;
 
 import com.example.sinu.capstone.Login.LoginMainActivity;
+import com.example.sinu.capstone.Login.NFC_Activity;
 
 /**
  * Created by sinu on 2017-10-15.
@@ -33,7 +34,7 @@ public class SplashActivity extends Activity {
             public void run() {
                 // This method will be executed once the timer is over
                 // Start your app main activity
-                Intent i = new Intent(SplashActivity.this, LoginMainActivity.class);
+                Intent i = new Intent(SplashActivity.this, NFC_Activity.class);
                 startActivity(i);
 
                 // close this activity

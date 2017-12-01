@@ -1,5 +1,6 @@
 package com.example.sinu.capstone;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -7,6 +8,7 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -31,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import android.view.View.OnClickListener;
 
+import com.example.sinu.capstone.Login.LoginMainActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -66,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList orderedMenu = new ArrayList();
     ArrayList orderedPrice = new ArrayList();
     //DB
+
+    orderData chatData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //DB
-        getData("http://ec2-13-124-13-37.ap-northeast-2.compute.amazonaws.com/qble/menu.php");
+        getData("http://ec2-13-124-191-219.ap-northeast-2.compute.amazonaws.com/qble/menu.php");
 
         // get the listview
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
@@ -121,13 +129,28 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //현재시각
                 long time = System.currentTimeMillis();
-                SimpleDateFormat dayTime = new SimpleDateFormat("MMdhhmmssSS");
+                SimpleDateFormat dayTime = new SimpleDateFormat("MMddhhmmssSS");
                 String str = dayTime.format(new Date(time));
+                //intented tableno from NFC_Activity
+                Intent intent = getIntent();
+                String tableno = intent.getStringExtra("tableno");
 
-                orderData chatData = new orderData(str,str,"2번",Menu_name,count,Price_list,total_string, Color.RED,1);  // (날짜,table번호,메뉴이름,수량)
+                chatData = new orderData(str,str, tableno+"번",Menu_name,count,Price_list,total_string, Color.RED,1);  // (날짜,table번호,메뉴이름,수량)
                 databaseReference.child("store1").child(str).setValue(chatData);  // 기본 database 하위 message라는 child에 chatData를 list로 만들기
                 itemList.clear();cntList.clear();orderedMenu.clear();
                 Toast.makeText(getApplicationContext(),"요청이 완료되었습니다.",Toast.LENGTH_SHORT).show();
+
+                //DB
+                String menu_name="";String menu_price="";String menu_count="";
+                for(int i=0;i<cntList.size();i++){
+                    menu_name+=itemList.get(i).toString()+" ";
+                    menu_price+=orderedPrice.get(i).toString()+" ";
+                    menu_count+=cntList.get(i).toString();
+                }
+//                InsertData2 task = new InsertData2();
+//                task.execute(tableno.toString(),menu_name,menu_price,menu_count);
+                InsertData2 task = new InsertData2();
+                task.execute("1번","메뉴","10000원","1개");
             }
         });
     }
@@ -359,5 +382,99 @@ public class MainActivity extends AppCompatActivity {
         }
         GetDataJSON g = new GetDataJSON();
         g.execute(url);
+    }
+    class InsertData2 extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = ProgressDialog.show(MainActivity.this,
+                    "Please Wait", null, true, true);
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Toast.makeText(getApplicationContext(),result,Toast.LENGTH_LONG).show();
+            progressDialog.dismiss();
+            Toast.makeText(getApplicationContext()," " + result,Toast.LENGTH_LONG).show();
+            //mTextViewResult.setText(result);
+            //Log.d(TAG, "POST response  - " + result);
+            Toast.makeText(getApplicationContext(),result,Toast.LENGTH_SHORT).show();
+            if(result.equals("성공")){
+                Toast.makeText(getApplicationContext(),"DB에 넣었다",Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String TABLE_NO = (String)params[0];
+            String MENU_NAME = (String)params[1];
+            String MENU_PRICE = (String)params[2];
+            String COUNT = (String)params[3];
+
+            String serverURL = "http://ec2-13-124-191-219.ap-northeast-2.compute.amazonaws.com/qble/order.php";
+            String postParameters = "TABLE_NO=" + TABLE_NO + "&MENU_NAME=" + MENU_NAME + "&MENU_PRICE=" + MENU_PRICE + "&COUNT=" + COUNT;
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                //httpURLConnection.setRequestProperty("content-type", "application/json");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+                //Log.d(TAG, "POST response code - " + responseStatusCode);
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+
+                bufferedReader.close();
+
+
+                return sb.toString();
+
+
+            } catch (Exception e) {
+
+//                Log.d(TAG, "InsertData: Error ", e);
+
+                return new String("Error: " + e.getMessage());
+            }
+        }
     }
 }
