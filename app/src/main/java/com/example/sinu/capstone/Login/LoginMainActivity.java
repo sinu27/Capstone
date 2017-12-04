@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+
 /**
  * Created by sinu on 2017-10-15.
  */
@@ -54,8 +55,8 @@ public class LoginMainActivity extends Activity {
 
 
 
+
         //DB
-        //getData("http://ec2-13-124-225-240.ap-northeast-2.compute.amazonaws.com/qble/login.php");
 
         etID = (EditText) findViewById(R.id.Login_ID);
         etPW = (EditText) findViewById(R.id.Login_password);
@@ -104,12 +105,14 @@ public class LoginMainActivity extends Activity {
             progressDialog.dismiss();
             Toast.makeText(getApplicationContext()," " + result,Toast.LENGTH_LONG).show();
             if(result.equals("로그인 성공")){
+
                 //intented from NFC_Activity
                 Intent intent = getIntent();
                 String tableno = intent.getStringExtra("tableno");
-
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
                 i.putExtra("tableno",tableno);
+                i.putExtra("ID",etID.getText().toString());
+                i.putExtra("PW",etPW.getText().toString());
                 startActivity(i);
                 finish();
             }
@@ -122,9 +125,8 @@ public class LoginMainActivity extends Activity {
             String ID = (String)params[0];
             String PASSWORD = (String)params[1];
 
-            String serverURL = "http://ec2-13-124-191-219.ap-northeast-2.compute.amazonaws.com/qble/login2.php";
+            String serverURL = "http://ec2-13-125-34-12.ap-northeast-2.compute.amazonaws.com/qble/login2.php";
             String postParameters = "ID=" + ID + "&PASSWORD=" + PASSWORD;
-
 
             try {
 

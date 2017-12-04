@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.sinu.capstone.Login.LoginMainActivity;
 import com.example.sinu.capstone.Login.NFC_Activity;
 
@@ -19,6 +22,9 @@ public class SplashActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
+        ImageView iv = (ImageView)findViewById(R.id.ivLoading);
+        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(iv);
+        Glide.with(this).load(R.drawable.loading).into(iv);
 
 
 

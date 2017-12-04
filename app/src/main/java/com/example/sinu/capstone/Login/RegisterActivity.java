@@ -36,7 +36,6 @@ import java.text.SimpleDateFormat;
 public class RegisterActivity extends Activity {
 
     private static String TAG = "php_RegisterActivity";
-    //private DateFormat dateFormat;
     private EditText rId;
     private EditText rPass;
     private EditText rPassConfirm;
@@ -49,8 +48,6 @@ public class RegisterActivity extends Activity {
     private RadioButton rMale;
     private RadioButton rFemale;
 
-    //private TextView mTextViewResult;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +56,6 @@ public class RegisterActivity extends Activity {
         setContentView(R.layout.login_activity_register);
         Button btnRegistSign = (Button)findViewById(R.id.regit_sign);
         Button btnRegistCancel = (Button)findViewById(R.id.regit_cancel);
-        //dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         rId = (EditText)findViewById(R.id.regit_id);
         rPass = (EditText)findViewById(R.id.regit_pass);
@@ -72,7 +68,6 @@ public class RegisterActivity extends Activity {
         rSex = (RadioGroup)findViewById(R.id.regit_sex);
         rMale = (RadioButton)findViewById(R.id.regit_male);
         rFemale = (RadioButton)findViewById(R.id.regit_female);
-        //mTextViewResult = (TextView)findViewById(R.id.textView_main_result);//ex
 
         btnRegistSign.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,9 +85,6 @@ public class RegisterActivity extends Activity {
                     SEX = "F";
                 }
                 String BIRTHDAY = rYear.getSelectedItem().toString() + "-" + rMonth.getSelectedItem().toString() + "-" + rDay.getSelectedItem().toString();
-                //String BIRTHDAY = dateFormat.format(date1);
-
-
 
                 if(PASSWORD.equals(PASSCONFIRM) == true){
 
@@ -104,7 +96,6 @@ public class RegisterActivity extends Activity {
                     else{
                         InsertData task = new InsertData();
                         task.execute(ID,PASSWORD,PHONE_NUMBER,NAME,SEX,BIRTHDAY);
-                        //Toast.makeText(getApplicationContext(),"회원가입이 완료되었습니다.",Toast.LENGTH_LONG).show();
                     }
                 }
                 else{
@@ -161,7 +152,7 @@ public class RegisterActivity extends Activity {
             String SEX = (String)params[4];
             String BIRTHDAY = (String)params[5];
 
-            String serverURL = "http://ec2-13-125-82-73.ap-northeast-2.compute.amazonaws.com/qble/registerfinal.php";
+            String serverURL = "http://ec2-13-125-34-12.ap-northeast-2.compute.amazonaws.com/qble/registerfinal.php";
             String postParameters = "ID=" + ID + "&PASSWORD=" + PASSWORD + "&PHONE_NUMBER=" + PHONE_NUMBER + "&NAME=" + NAME + "&SEX=" + SEX + "&BIRTHDAY=" + BIRTHDAY;
 
 
